@@ -15,6 +15,9 @@ const zeroPaddedNumber = (num) => {
   return sprintf('%05d', num);
 };
 
+// ex: 100014.58, 87463.209, 20171109, 755378.34, 99977
+// --> 00100014.58, 00087463.209, 20171109, 00755378.34, 00099977
+
 const readCounter = (callback) => {
   fs.readFile(exports.counterFile, (err, fileData) => {
     if (err) {
@@ -38,12 +41,29 @@ const writeCounter = (count, callback) => {
 
 // Public API - Fix this function //////////////////////////////////////////////
 
-exports.getNextUniqueId = () => {
-  counter = counter + 1;
-  return zeroPaddedNumber(counter);
+// save the current state of the counter to the hard drive using readCounter and writeCounter
+
+// getNextUniqueId tests:
+// should use error first callback pattern
+// should give an id as a zero padded string
+// should give the next id based on the count in the file
+// should update the counter file with the next value
+
+exports.getNextUniqueId = (callback) => {
+  readCounter(function(err, count) {
+    if (err) {
+      throw ('failed to read file');
+    } else {
+      writeCounter(count + 1, function(err) {
+        if (err) {
+          throw ('failed to write');
+        } else {
+          callback(err, zeroPaddedNumber(count + 1));
+        }
+      });
+    }
+  });
 };
-
-
 
 // Configuration -- DO NOT MODIFY //////////////////////////////////////////////
 

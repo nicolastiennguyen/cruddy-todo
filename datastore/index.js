@@ -7,10 +7,28 @@ var items = {};
 
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 
+// exports.create = (text, callback) => {
+//   var id = counter.getNextUniqueId();
+//   items[id] = text;
+//   callback(null, { id, text });
+// };
+
 exports.create = (text, callback) => {
-  var id = counter.getNextUniqueId();
-  items[id] = text;
-  callback(null, { id, text });
+  counter.getNextUniqueId(function(err, id) {
+    // write text to new file with corr ID ?
+    if (err) {
+      throw ('Error');
+    } else {
+      fs.writeFile(`${exports.dataDir}/${id}.txt`, text, function (err) {
+        if (err) {
+          throw ('failed to create');
+        } else {
+          callback(null, {id, text});
+        }
+      });
+    }
+  }); //getNextUniqueId passes the ID into the callback(null, zerPaddedNumber(count + 1)), so
+
 };
 
 exports.readAll = (callback) => {

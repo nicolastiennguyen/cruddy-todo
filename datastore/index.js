@@ -2,8 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
+const Promise = require('bluebird');
 
-// var items = {};
+fsProm = Promise.promisifyAll(fs);
 
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 
@@ -37,16 +38,37 @@ exports.create = (text, callback) => {
 //   callback(null, data);
 // };
 
-exports.readAll = (callback) => {
-  fs.readdir(`${exports.dataDir}/`, function(err, files) {
-    let data = _.map(files, (text, id) => {
-      var string = text.replace('.txt', ''); // note: can't read file content?
-      return { id: string, text: string };
-    });
-    callback(null, data);
-  });
-};
+// exports.readAll = (callback) => {
+//   fs.readdir(`${exports.dataDir}/`, function(err, files) {
+//     let data = _.map(files, (text, id) => {
+//       var string = text.replace('.txt', ''); // note: can't read file content?
+//       return { id: string, text: string };
+//     });
+//     callback(null, data);
+//   });
+// };
 
+exports.readAll = (callback) => {
+  let filePath = `${exports.dataDir}`;
+  return fsProm.readdirAsync(filePath)
+    .then(function(fileArray) {
+      data = fileArray.map(function(file) {
+        return new Promise((resolve, reject) => {
+          fs.readFile(`${filePath}/${file}`, 'utf8', function(err, text) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve({id: file.replace('.txt', ''), text: text});
+            }
+          });
+        });
+      });
+      return Promise.all(data)
+        .then(function(collection) {
+          callback(null, collection);
+        });
+    });
+};
 
 // exports.readOne = (id, callback) => {
 //   var text = items[id];

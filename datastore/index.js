@@ -3,7 +3,7 @@ const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
 
-var items = {};
+// var items = {};
 
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 
@@ -28,15 +28,33 @@ exports.create = (text, callback) => {
       });
     }
   }); //getNextUniqueId passes the ID into the callback(null, zerPaddedNumber(count + 1)), so
-
 };
+
+// exports.readAll = (callback) => {
+//   var data = _.map(items, (text, id) => {
+//     return { id, text };
+//   });
+//   callback(null, data);
+// };
 
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
+  fs.readdir(`${exports.dataDir}/`, function(err, files) {
+    let data = _.map(files, (text, id) => {
+      var string = text.replace('.txt', ''); // note: can't read file content?
+      return { id: string, text: string };
+    });
+    callback(null, data);
   });
-  callback(null, data);
 };
+
+/*
+  [
+    {
+      todos: 00001
+      ___: 00001
+    }
+  ]
+*/
 
 exports.readOne = (id, callback) => {
   var text = items[id];

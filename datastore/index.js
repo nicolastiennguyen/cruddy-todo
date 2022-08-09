@@ -47,22 +47,26 @@ exports.readAll = (callback) => {
   });
 };
 
-/*
-  [
-    {
-      todos: 00001
-      ___: 00001
-    }
-  ]
-*/
+
+// exports.readOne = (id, callback) => {
+//   var text = items[id];
+//   if (!text) {
+//     callback(new Error(`No item with id: ${id}`));
+//   } else {
+//     callback(null, { id, text });
+//   }
+// };
 
 exports.readOne = (id, callback) => {
-  var text = items[id];
-  if (!text) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback(null, { id, text });
-  }
+  // navigating to the dir, read file
+  fs.readFile(`${exports.dataDir}/${id}.txt`, 'utf8', function(err, text) {
+    if (err) {
+      // throw ('error');
+      callback(new Error(`No item with id: ${id}`));
+    } else {
+      callback(null, { id, text });
+    }
+  });
 };
 
 exports.update = (id, text, callback) => {
